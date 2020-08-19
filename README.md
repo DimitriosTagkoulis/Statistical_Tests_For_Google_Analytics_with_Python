@@ -1,4 +1,4 @@
-# Google-Merchendise-Store-Analytics-with-Google-Analytics-and-Python-
+# Google Merchendise Store Analytics with Google Analytics and Python
 
 ### Introduction
 
