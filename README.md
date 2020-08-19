@@ -39,7 +39,7 @@ form an interesting first metrics report with them. So, we ended up to the follo
 analytics/
 [2] Oberlo. https://www.oberlo.com/ebooks/get-sales-dropshipping/data-analysis
 
-KPI’s
+### KPI’s
 • Number of Visits per User
 • Unique & Returning Visitors
 • Visitors’ Location
