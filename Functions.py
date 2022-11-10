@@ -2,7 +2,7 @@
 # coding: utf-8
 
 # ### Imports Needed
-
+import itertools
 import numpy as np
 # modules for functions
 import pandas as pd
@@ -22,10 +22,6 @@ from statsmodels.graphics.gofplots import qqplot
 
 ### General Utilities
 
-## Get name of provided values in fuctions
-def get_variable_name(variable):
-    return [var_name for var_name in globals() if globals()[var_name] is variable]
-
 ## Statistical Tests
 #Define significance level
 alpha = 0.05
@@ -34,13 +30,13 @@ normalityRuns=0
 
 
 def normality_eda(data):
-    dataName=get_variable_name(data)
+    
+    dataName=data.name
     
     # Print Descriptive Statistics
     print('Descriptive Statistics:')
     print(data.describe())
     print('\nVisual Normality Tests:')
-    print('\n', 'Variable plots:')
     data=np.array(data, dtype='float64')
     
     #plot Histogram
@@ -64,7 +60,8 @@ def normality_test(data):
     Normality test function
     data: numpy array of observations from data to check
     """
-    dataName=get_variable_name(data)
+    global dataName
+    dataName=data.name
     global normality
     global normalityRuns
     # Perform Shapiro Test
@@ -83,17 +80,21 @@ def normality_test(data):
        normalityRuns=0
        normality=True
 
-
 def means_test(dataset1, dataset2):
     global stat, p
+    
+    normality_test(dataset1)
+    normality_test(dataset2)
+    
     if normality: 
         stat, p = ttest_ind(dataset1, dataset2)          
     else: 
         stat, p = ranksums(dataset1, dataset2)
     print('Statistics=%.3f, p=%.3f' % (stat, p))
-    
-    dataName1=get_variable_name(dataset1)
-    dataName2=get_variable_name(dataset2)
+    global dataName1
+    global dataName2
+    dataName1=dataset1.name
+    dataName2=dataset2.name
     
     if stat==0:
        print("No difference in means of ", dataName1, dataName2, ".")
@@ -107,15 +108,19 @@ def means_test(dataset1, dataset2):
         print('The difference between the datasets is not significant (fail to reject H0)')
     else:
         print('The difference between the datasets is significant (reject H0)')
-    return stat, p
+
 
 
 def correlation_test(dataset1, dataset2):
     global stat, p
+    
+    normality_test(dataset1)
+    normality_test(dataset2)
+    
     if normality: 
         stat, p = pearsonr(dataset1, dataset2)          
     else: 
-        stat, p = spearmanr(x=dataset1, y=dataset2)
+        stat, p = spearmanr(dataset1, dataset2)
     print('Statistics=%.3f, p=%.3f' % (stat, p))
 
     # interpret
@@ -126,18 +131,32 @@ def correlation_test(dataset1, dataset2):
     else:
         print('The two datasets are not corelated')
     return stat, p
-      
-def testing(testType: str, dataset1, dataset2, eda: bool = False):
-    if eda:
-      normality_eda(dataset1)
-      normality_eda(dataset2)
-    normality_test(dataset1)
-    normality_test(dataset2)
-    if testType =='Significance':
-       means_test(dataset1, dataset2)
-    elif testType =='Correlation': 
-      correlation_test(dataset1, dataset2)
-    else:
-      print("testType must be either Significance or Correlation")
-    return stat, p
 
+
+def multiple_means_test(means_dict):
+      if type(means_dict) != dict:
+            print("Variable is not a dictionairy. dictionairy must be provided.")
+      else:
+            # interpret
+            for k, v in means_dict.items():
+                  normality_test(v)
+                  print(" ")
+
+            if normality: 
+               stat, p = f_oneway(*means_dict.values())
+            else:
+               stat, p = kruskal(*means_dict.values())
+
+            if p > alpha:    
+                  print('The difference between the datasets is not significant (fail to reject H0)')
+            else:
+                  print('The difference between the datasets is significant (reject H0)')
+
+                  print("Making Pairwise tests:")
+
+                  keysList = list(means_dict.keys())
+                  pair_order_list = itertools.combinations(keysList,2)
+
+                  for pair in pair_order_list:
+                     print("Pair: ", pair)
+                     means_test(means_dict[pair[0]],means_dict[pair[1]])
