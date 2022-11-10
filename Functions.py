@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ### Imports
+# ### Imports Needed
 
 import numpy as np
 # modules for functions
@@ -64,7 +64,7 @@ def normality_test(data):
     Normality test function
     data: numpy array of observations from data to check
     """
-    #dataName=get_df_name(data)
+    dataName=get_df_name(data)
     global normality
     global normalityRuns
     # Perform Shapiro Test
@@ -73,10 +73,10 @@ def normality_test(data):
 
     # Interpret Test
     if p > alpha:
-        print('Variable', (normalityRuns +1), 'looks Gaussian (fail to reject H0)')
+        print('Variable', dataName, 'looks Gaussian (fail to reject H0)')
         normality=normality and True
     else:
-        print('Variable', (normalityRuns +1), 'does not look Gaussian (reject H0)')
+        print('Variable', dataName, 'does not look Gaussian (reject H0)')
         normality=False
     normalityRuns+=1
     if normalityRuns>1:
@@ -84,7 +84,7 @@ def normality_test(data):
        normality=True
 
 
-def significance_test(dataset1, dataset2):
+def means_test(dataset1, dataset2):
     global stat, p
     if normality: 
         stat, p = ttest_ind(dataset1, dataset2)          
