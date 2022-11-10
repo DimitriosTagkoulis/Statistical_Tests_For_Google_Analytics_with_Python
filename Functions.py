@@ -15,7 +15,7 @@ pio.templates.default = "plotly_dark"
 # Parametric Tests
 
 #Scipy.stats imports for normality tests
-from scipy.stats import (kruskal, kstest, pearsonr, ranksums, shapiro,
+from scipy.stats import (kruskal, pearsonr, ranksums, shapiro,
                          spearmanr, ttest_ind, f_oneway)
 from statsmodels.graphics.gofplots import qqplot
 
@@ -23,8 +23,8 @@ from statsmodels.graphics.gofplots import qqplot
 ### General Utilities
 
 ## Get name of provided values in fuctions
-def get_df_name(df):
-    return [x for x in globals() if globals()[x] is df][0]
+def get_variable_name(variable):
+    return [var_name for var_name in globals() if globals()[var_name] is variable]
 
 ## Statistical Tests
 #Define significance level
@@ -34,7 +34,7 @@ normalityRuns=0
 
 
 def normality_eda(data):
-    #dataName=get_df_name(data)
+    dataName=get_variable_name(data)
     
     # Print Descriptive Statistics
     print('Descriptive Statistics:')
@@ -64,7 +64,7 @@ def normality_test(data):
     Normality test function
     data: numpy array of observations from data to check
     """
-    dataName=get_df_name(data)
+    dataName=get_variable_name(data)
     global normality
     global normalityRuns
     # Perform Shapiro Test
@@ -92,6 +92,16 @@ def means_test(dataset1, dataset2):
         stat, p = ranksums(dataset1, dataset2)
     print('Statistics=%.3f, p=%.3f' % (stat, p))
     
+    dataName1=get_variable_name(dataset1)
+    dataName2=get_variable_name(dataset2)
+    
+    if stat==0:
+       print("No difference in means of ", dataName1, dataName2, ".")
+    elif stat>0:
+       print(dataName1, " mean is bigger than that of ", dataName2)
+    else:
+       print(dataName2, " mean is bigger than that of ", dataName1)
+    
     # interpret
     if p > alpha:    
         print('The difference between the datasets is not significant (fail to reject H0)')
@@ -101,10 +111,6 @@ def means_test(dataset1, dataset2):
 
 
 def correlation_test(dataset1, dataset2):
-    #dataName1=get_df_name(dataset1)
-    #dataName2=get_df_name(dataset2)
-    #dataName1=testing_column1
-    #dataName2=testing_column2
     global stat, p
     if normality: 
         stat, p = pearsonr(dataset1, dataset2)          
@@ -128,9 +134,10 @@ def testing(testType: str, dataset1, dataset2, eda: bool = False):
     normality_test(dataset1)
     normality_test(dataset2)
     if testType =='Significance':
-       significance_test(dataset1, dataset2)
+       means_test(dataset1, dataset2)
     elif testType =='Correlation': 
       correlation_test(dataset1, dataset2)
     else:
       print("testType must be either Significance or Correlation")
     return stat, p
+
