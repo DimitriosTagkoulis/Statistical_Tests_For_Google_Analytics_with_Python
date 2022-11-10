@@ -114,9 +114,9 @@ def correlation_test(dataset1, dataset2):
 
     # interpret
     if (p < alpha) & (stat > 0):
-	     print('The two datasets are positively corelated')
+        print('The two datasets are positively corelated')
     elif (p < alpha) & (stat < 0):
-	     print('The two datasets are negatively corelated')
+        print('The two datasets are negatively corelated')
     else:
         print('The two datasets are not corelated')
     return stat, p
